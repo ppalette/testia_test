@@ -64,7 +64,7 @@ class WidgetContainer(GridLayout):
         self.auto_refresh = Clock.schedule_interval(self.refresh_array, period)
 
     @staticmethod
-    def click_exit():
+    def click_exit(_):
         exit(0)
 
 
