@@ -11,18 +11,20 @@ import numpy
 
 
 class MyPic:
-    tab_size = 50
+
+    __tab_size = 50
 
     def __init__(self):
-        self.texture = Texture.create(size=(self.tab_size, self.tab_size))
+        self.texture = Texture.create(size=(self.__tab_size, self.__tab_size))
         self.palette = [b"\x00\x00\x00", b"\xff\x00\x00", b"\x00\xff\x00", b"\x00\x00\xff", b"\xff\xff\xff"]
         self.refresh()
 
     def refresh(self):
-        tab = numpy.random.randint(0, 5, size=(self.tab_size*self.tab_size), dtype=numpy.uint16)
+        """Regénère le tableau numpy et le buffer à afficher translaté avec la palette"""
+        tab = numpy.random.randint(0, 5, size=(self.__tab_size*self.__tab_size), dtype=numpy.uint16)
         buf = b""
-        for x in range(self.tab_size*self.tab_size):
-            buf += self.palette[int(tab[x])]
+        for x in range(self.__tab_size*self.__tab_size):
+            buf += self.palette[tab[x]]
         self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
 
 
