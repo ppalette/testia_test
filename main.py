@@ -3,40 +3,43 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.slider import Slider
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.graphics import Rectangle
 import numpy
 
 
-class MyPic:
+class MyArray(GridLayout):
+    """Génère un tableau de labels (couleurs) à partir d'un numpy"""
 
-    __tab_size = 50
+    __size = 5
+    __colors = [Label(text="0") for x in range(__size*__size)]
 
-    def __init__(self):
-        self.texture = Texture.create(size=(self.__tab_size, self.__tab_size))
+    def __init__(self, **kwargs):
+        super(MyArray, self).__init__(**kwargs)
+        # il n'y a que 5 valeurs dans la palette
         self.palette = [b"\x00\x00\x00", b"\xff\x00\x00", b"\x00\xff\x00", b"\x00\x00\xff", b"\xff\xff\xff"]
         self.refresh()
+        self.cols = self.__size
+        for x in range(self.__size*self.__size):
+            self.add_widget(self.__colors[x])
 
     def refresh(self):
-        """Regénère le tableau numpy et le buffer à afficher translaté avec la palette"""
-        tab = numpy.random.randint(0, 5, size=(self.__tab_size*self.__tab_size), dtype=numpy.uint16)
-        buf = b""
-        for x in range(self.__tab_size*self.__tab_size):
-            buf += self.palette[tab[x]]
-        self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+        """Regénère le tableau numpy et les couleurs (textes des labels)"""
+        # 5 valeurs pour correspondre à la palette (limitée)
+        numpy_array = numpy.random.randint(0, 4, size=(self.__size*self.__size), dtype=numpy.uint16)
+        for x in range(self.__size*self.__size):
+            self.__colors[x].text = str(self.palette[numpy_array[x]])
 
 
 class WidgetContainer(GridLayout):
+    """Gère affichage et refresh auto du layout principal"""
 
     def __init__(self, **kwargs):
         super(WidgetContainer, self).__init__(**kwargs)
         self.cols = 1
 
-        self.my_pic = MyPic()
-        self.pic = Widget()
-        self.pic.canvas = Rectangle(texture=self.my_pic.texture, pos=(10, 10), size=(50, 50))
+        self.my_array = MyArray()
 
         self.mySlider = Slider(min=30, max=60, value=30)
         self.mySlider.bind(value=self.on_frequency)
@@ -45,22 +48,22 @@ class WidgetContainer(GridLayout):
         self.myButton = Button(text="Quit")
         self.myButton.bind(on_press=self.click_exit)
 
+        self.add_widget(self.my_array)
         self.add_widget(self.mySlider)
         self.add_widget(self.mySliderValue)
         self.add_widget(self.myButton)
-        self.add_widget(self.pic)
 
-        self.auto_refresh = Clock.schedule_interval(self.refresh_pic, 1/30)
+        self.auto_refresh = Clock.schedule_interval(self.refresh_array, 1/30)
 
-    def refresh_pic(self, dt):
-        self.my_pic.refresh()
-        self.pic.canvas.texture = self.my_pic.texture
+    def refresh_array(self, dt):
+        # le layout est redessiné automatiquement
+        self.my_array.refresh()
 
     def on_frequency(self, instance, value):
         self.mySliderValue.text = "%d Hz" % value
         period = 1/value
-        self.auto_refresh.cancel()
-        self.auto_refresh = Clock.schedule_interval(self.refresh_pic, period)
+        self.auto_refresh.cancel() # Précédent schedule annulé
+        self.auto_refresh = Clock.schedule_interval(self.refresh_array, period)
 
     @staticmethod
     def click_exit(self):
