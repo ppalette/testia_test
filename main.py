@@ -4,13 +4,11 @@ from kivy.uix.slider import Slider
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.clock import Clock
-from kivy.graphics.texture import Texture
-from kivy.graphics import Rectangle
 import numpy
 
 
 class MyArray(GridLayout):
-    """Génère un tableau de labels (couleurs) à partir d'un numpy"""
+    """Genere un tableau de labels ( couleurs ) a partir d'un numpy"""
 
     __size = 5
     __colors = [Label(text="0") for x in range(__size*__size)]
@@ -25,15 +23,15 @@ class MyArray(GridLayout):
             self.add_widget(self.__colors[x])
 
     def refresh(self):
-        """Regénère le tableau numpy et les couleurs (textes des labels)"""
-        # 5 valeurs pour correspondre à la palette (limitée)
+        """Regenere le tableau numpy et les couleurs ( textes des labels )"""
+        # 5 valeurs pour correspondre à la palette ( limitee )
         numpy_array = numpy.random.randint(0, 4, size=(self.__size*self.__size), dtype=numpy.uint16)
         for x in range(self.__size*self.__size):
             self.__colors[x].text = str(self.palette[numpy_array[x]])
 
 
 class WidgetContainer(GridLayout):
-    """Gère affichage et refresh auto du layout principal"""
+    """Gere affichage et refresh auto du layout principal"""
 
     def __init__(self, **kwargs):
         super(WidgetContainer, self).__init__(**kwargs)
@@ -55,18 +53,18 @@ class WidgetContainer(GridLayout):
 
         self.auto_refresh = Clock.schedule_interval(self.refresh_array, 1/30)
 
-    def refresh_array(self, dt):
-        # le layout est redessiné automatiquement
+    def refresh_array(self, _):
+        # le layout est redessine automatiquement
         self.my_array.refresh()
 
-    def on_frequency(self, instance, value):
+    def on_frequency(self, _, value):
         self.mySliderValue.text = "%d Hz" % value
         period = 1/value
-        self.auto_refresh.cancel() # Précédent schedule annulé
+        self.auto_refresh.cancel()  # Precedent schedule annule
         self.auto_refresh = Clock.schedule_interval(self.refresh_array, period)
 
     @staticmethod
-    def click_exit(self):
+    def click_exit():
         exit(0)
 
 
